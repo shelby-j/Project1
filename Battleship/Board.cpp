@@ -7,8 +7,9 @@
  *-----------------------------------------------------*/
 
 #include "Board.h"
+using namespace std;
 
-Board::Board(int size, std::string playerNum) { //Constructor for Board class, passes in parameters: size of board (always 10x10) and string representing player name/#.
+Board::Board(int size, string playerNum) { //Constructor for Board class, passes in parameters: size of board (always 10x10) and string representing player name/#.
 	player = playerNum; //Sets member variable player = to playerNum argument (so either Player 1 or Player 2).
 	m_size = size; //Sets member variable m_size = to size argument passed in.
 	initialGrid = new char* [m_size]; //Creates array of characters to store the players initial placement of ship
@@ -144,31 +145,33 @@ bool Board::checkWin() { //checkWin takes in no parameters and returns boolean v
 	return true; //Else, return true as no ships remain to be hit, player has won battleship.
 }
 
-void Board::printBoard(std::string boardType) { //Prints board based on given boardtype, just for UI interface.
-	std::cout << "\n" << this->player << "'s " << boardType << " Grid\n\n"; //Heading designating which player's shot grid is in view.
+void Board::printBoard(string boardType) { //Prints board based on given boardtype, just for UI interface.
+	cout << "\n" << this->player << "'s " << boardType << " Grid\n\n"; //Heading designating which player's shot grid is in view.
 	for (int i = 0; i <= m_size; i++) { //Nested for loop traverse entirety of board.
 		if (i == 1) {
-			std::cout << "\n"; //Formatting for top row to display column letters.
+			cout << "\n"; //Formatting for top row to display column letters.
 		} if (i != 0) {
-			std::cout << printCol[i - 1] << " ";
+			cout << printCol[i - 1] << " ";
 		}
 		for (int j = 0; j <= m_size; j++) { //Formatting for displaying row numbers.
 			if (i == 0 && j == 0 && i != m_size) {
-				std::cout << "  ";
+				cout << "  ";
 			} if (j == 0 && i != m_size) {
-				std::cout << " ";
+				cout << " ";
 			} if (i == 0 && j != 0) {
-				std::cout << printRow[j - 1] << " ";
+				cout << printRow[j - 1] << " ";
 			} if (i != 0 && j != m_size) { //Display grid.
 				if (boardType == "Shot") {
-					std::cout << shotGrid[i - 1][j] << " ";
+					cout << shotGrid[i - 1][j] << " ";
 				}
 				else {
-					std::cout << placeGrid[i - 1][j] << " ";
+					cout << placeGrid[i - 1][j] << " ";
 				}
 			}
 		}
-		std::cout << "\n";
+		cout << "\n";
 	}
-	std::cout << "\n";
+	cout << "\n";
 }
+
+
