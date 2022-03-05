@@ -1,9 +1,5 @@
 /*-------------------------------------------------------
- * 	File Name: Executive.h
- * 	Authors: Alice Kuang, Thresa Kelly, Minwoo Lee, Justin Sizoo, Maggie Swartz (Group #14)
- * 	Assignment: EECS_448 Project #1
- * 	Description: This is the header file for the Executive class
- * 	Date Last Modified: 02/12/2022
+
  *-----------------------------------------------------*/
 
 #ifndef EXECUTIVE_H
@@ -12,7 +8,6 @@
 #include <iostream>
 #include <string>
 #include "Board.h"
-using namespace std;
 
 class Executive {
 	private:
@@ -20,6 +15,12 @@ class Executive {
 		Board* p1Board; //Pointer to instance of Board class that represents Player 1's board
 		Board* p2Board; //Pointer to instance of Board class that represents Player 2's board
 		bool PTurn; //Boolean variable keeps track of which player's turn it is at any given time.
+
+        std::string level; //AI level - 1. Easy, 2: Medium, 3: Hard
+        
+        bool previousHit;   //the previous is hit -> the next shot will be adjacency
+        int previousRow;    //previous row
+        int previousCol;    //previous col
 
 	public:
     		/*----------
@@ -71,20 +72,20 @@ class Executive {
     		int charToInt(char c);
 
 		/*----------
-     		* @pre must input an #iistring
+     		* @pre must input an std::string
      		* @post checks to see whether the given location is valid in reference to board size and description
-     		* @param #iistring input, the string representing the desired location on board
-     		* @return #iistring, representation as to whether or not a valid location was chosen
+     		* @param std::string input, the string representing the desired location on board
+     		* @return std::string, representation as to whether or not a valid location was chosen
      		* -------*/
-    		string validateLoc(string input);
+    		std::string validateLoc(std::string input);
 
 		/*----------
-	  		* @pre must input an #iistring
+	  		* @pre must input an std::string
      		* @post checks to see if a given string input is valid
-		   	* @param #iistring input, the string to check validity
+		   	* @param std::string input, the string to check validity
 		    * @return bool, to determine if the string is valid or not
 			* -------*/
-			bool checkInput(string input);
+			bool checkInput(std::string input);
      		
 		/*----------
      		* @pre char input must be V (for vertical) or H (for horizontal) for meaningful orientation
@@ -93,6 +94,30 @@ class Executive {
      		* @return char representing chosen orientation
      		* -------*/
     		char validateDirection(char input);
+
+            /*----------
+                * @pre
+                * @post
+                * @param Board* board (pointer to player's board) and int numShips (# of ships chosen for play)
+                * @return none - void function
+                * -------*/
+            void chooseRandomShipLoc(Board* board, int numShips);  //new code added
+
+            /*----------
+            * @pre must input an std::string
+            * @post checks to see whether the level of AI location is valid
+            * @param std::string input, the string representing the level
+            * @return std::string, representation as to whether or not a valid level was chosen
+            * -------*/
+            std::string validateLevel(std::string input);  //new code added
+
+            /*----------
+            * @pre must input an std::string
+            * @post checks to see whether the given location is valid in reference to board size and description
+            * @param std::string input, the string representing the desired location on board
+            * @return std::string, representation as to whether or not a valid location was chosen
+            * -------*/
+            std::string validateAILoc(std::string input, Board* board, Board* opBoard);  //new code added
 };
 
 #endif

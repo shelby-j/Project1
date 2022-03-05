@@ -1,16 +1,11 @@
 /*-------------------------------------------------------
- *      File Name: Executive.cpp
- *      Authors: Alice Kuang, Thresa Kelly, Minwoo Lee, Justin Sizoo, Maggie Swartz (Group #14)
- *      Assignment: EECS_448 Project #1
- *      Description: This is the executable file for the Executive class
- *      Date Last Modified: 02/12/2022
- *-----------------------------------------------------*/
+
+ /*-----------------------------------------------------*/
 
 #include "Executive.h"
 #include <limits>
 #include <iostream>
 #include <cctype>
-using namespace std;
 
 Executive::Executive(int numShips) { //Constructor for Executive class, takes in selected number of ships as a parameter.
 	m_size = 10; //Sets member variable m_size equal to 10 (creation of 10x10 playing board.
@@ -19,8 +14,20 @@ Executive::Executive(int numShips) { //Constructor for Executive class, takes in
 	p2Board = new Board(m_size, "Player 2"); //Creates instance of Board class for Player 2, take in m_size and name "Player 2" as parameters.
 	p1Board->printBoard("Initial"); //Prints out initial board prior to ship location selection.
 	chooseShipLoc(p1Board, numShips); //Player 1 places their ships on their board w/ selected number of ships.
+
+	//set up for AI, new code is added
+	previousHit = false;   //the previous is hit -> the next shot will be adjacency
+	previousRow = -1;    //previous row
+	previousCol = -1;    //previous col
+
+	//choose level for AI
+	std::cout << "Please enter the AI level (1. Easy, 2: Medium, 3: Hard): ";
+	level = validateLevel(level);
+	
 	p2Board->printBoard("Initial"); //Prints out initial board prior to ship location sleection.
-	chooseShipLoc(p2Board, numShips); //Player 2 places their ships on their board w/ selected number of ships.
+
+	//new code is added
+	chooseRandomShipLoc(p2Board, numShips); //Player 2 places their ships on their board w/ selected number of ships.
 }
 
 Executive::~Executive() { //Destructor for the Executive class.
@@ -31,15 +38,25 @@ Executive::~Executive() { //Destructor for the Executive class.
 void Executive::run() { //Void run function enables all gameplay functionality.
 	Board* board = p1Board; //Creates a pointer to Board instance p1Board (Player 1).
 	Board* opBoard = p2Board; //Creates a pointer to Board instance opBoard (Player 2).
+	
 	while (true) { //While loop to enable continuous gameplay until there is a winner.
-        string shot = ""; //Initializes string shot to an empty string.
+        std::string shot = ""; //Initializes string shot to an empty string.
         int row = 0; //Initializes row location integer to 0.
         int col = 0; //Initializes column location integer to 0.
         char tmp; //temp to convert to lowercase
 		board->printBoard("Place");
 		board->printBoard("Shot"); //Print the updated shotGrid.
-        cout << "Player " << PTurn+1 << ", take your shot: "; //Message indicating Player 1 goes first, but alternates to next player in future by + on PTurn.
-		shot = validateLoc(shot); //Validate shot location.
+        std::cout << "Player " << PTurn+1 << ", take your shot: "; //Message indicating Player 1 goes first, but alternates to next player in future by + on PTurn.
+		
+		if (PTurn == 0) //player
+		{
+			shot = validateLoc(shot); //Validate shot location.
+		}
+		else {//AI
+			shot = validateAILoc(shot, board, opBoard); //Validate shot location.
+			std::cout << shot << std::endl;
+		}		
+		
 		
 		if (shot.length() == 3) { //If function helps to process shot location if in row 10 (legnth is 3 due to char + 10).
 			row = 9; //If we are in row = 10...
@@ -51,8 +68,16 @@ void Executive::run() { //Void run function enables all gameplay functionality.
 			col = charToInt(tmp);
 		}
 		while (!board->validShot(row, col)) { //Ensure that shot isn't in same position
-			cout << "Error - you have already shot at this location, take your shot again: ";
-			shot = validateLoc(shot);
+			std::cout << "Error - you have already shot at this location, take your shot again: ";
+			
+			if (PTurn == 0) //player
+			{
+				shot = validateLoc(shot); //Validate shot location.
+			}
+			else {//AI
+				shot = validateAILoc(shot, board, opBoard); //Validate shot location.
+			}
+
 			if (shot.length() == 3) { //If function helps to process shot location if in row 10 (legnth is 3 due to char + 10).
 				row = 9; //If we are in row = 10...
 				tmp = tolower(shot[2]);
@@ -66,45 +91,59 @@ void Executive::run() { //Void run function enables all gameplay functionality.
 
         if (board->shootShot(row, col, opBoard)) { //Check to see if there was a hit or miss at shot location.
 			if (opBoard->sinkStatus(row, col)) { //See if this shot resulted in the sinking of a ship...
-				cout << "SUNK!\n\n"; //If it did, output message indicating sunk status.
-			} else cout << "HIT!\n\n"; //If not sunk, but a hit did occur, then issue message indicating hit status.
+				std::cout << "SUNK!\n\n"; //If it did, output message indicating sunk status.
+
+				//medium level, start new find
+				previousHit = false;
+			}
+			else {
+				std::cout << "HIT!\n\n"; //If not sunk, but a hit did occur, then issue message indicating hit status.
+
+				previousHit = true; 
+
+				previousRow = row;
+				previousCol = col;
+
+			}
 
 			if (opBoard->checkWin()) { //Check to see if this round of gameplay resulted in a winner.
 				board->printBoard("Shot");
                 break;
             }
-      	} 
-		else { //Else, a hit did not occur in this round of gameplay.
-            cout << "MISS!\n\n"; //Output message indicating a miss occured.
+      	} else { //Else, a hit did not occur in this round of gameplay.
+
+			previousHit = false;
+
+            std::cout << "MISS!\n\n"; //Output message indicating a miss occured.
 			board->printBoard("Shot"); //Print shot board.
+			Board* temp = board; //Create temp board.
+			board = opBoard; //Set equal to opponent's board.
+			opBoard = temp; //Set opponent's board equal to temp.
+			playerSwitch();
     	}
-		Board* temp = board; //Create temp board.
-		board = opBoard; //Set equal to opponent's board.
-		opBoard = temp; //Set opponent's board equal to temp.
-		playerSwitch();
 	}
-    cout << "\nGame end: Player " << PTurn+1 << " wins.\n"; //If we exited the while loop, one of the players won, output message indicating win.
+    std::cout << "\nGame end: Player " << PTurn+1 << " wins.\n"; //If we exited the while loop, one of the players won, output message indicating win.
 }
 
 void Executive::playerSwitch() {
 	char confirm;
-	cout << "Press the Y key to confirm player switch: ";
-	cin >> confirm;
-	while (cin.fail() || (confirm != 'Y' && confirm != 'y')) { //While innapropriate input occurs...
-		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n'); //Utilize cin.fail and output error message, need correct input to continue.
-		cout << "Invalid Input - Press the Y key to confirm player switch: ";
-		cin >> confirm; //Retry to get valid input.
+	std::cout << "Press the Y key to confirm player switch: ";
+	std::cin >> confirm;
+	while (std::cin.fail() || (confirm != 'Y' && confirm != 'y')) { //While innapropriate input occurs...
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //Utilize cin.fail and output error message, need correct input to continue.
+		std::cout << "Invalid Input - Press the Y key to confirm player switch: ";
+		std::cin >> confirm; //Retry to get valid input.
 	}
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	PTurn = !PTurn; //Update PTurn to move onto the next player and allow them to place their ships or start gameplay.
-	cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-	cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+	std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+	std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
 }
 
 void Executive::chooseShipLoc(Board* board, int numShips) {//chooseShipLoc function places ships with board pointer and numShips desired as parameters.
 	
-	string shipLoc = ""; //Initializes shipLoc to empty string.
+	std::string shipLoc = ""; //Initializes shipLoc to empty string.
 	int row = 0; //Initializes row integer to 0.
 	int col = 0; //Initializes column integer to 0.
 	char temp; //Temp for converting to lowercase
@@ -112,7 +151,7 @@ void Executive::chooseShipLoc(Board* board, int numShips) {//chooseShipLoc funct
 	bool inserted = false; //Boolean variable keeps track of whether the ship was inserted, initialized to false.
 	for (int i = 0; i < numShips; i++) { //For loop traverses desired number of ships.
 		while (!inserted) { //While loop continues while the ship has not been inserted successfully.
-			cout << "Player " << PTurn+1 << ", Input a location for ship " << i+1 << ": "; //Message directs current player to insert their ship.
+			std::cout << "Player " << PTurn+1 << ", Input a location for ship " << i+1 << ": "; //Message directs current player to insert their ship.
 			shipLoc = validateLoc(shipLoc); //Validate ship location.
 			if(shipLoc.length() ==3) { //This code is necessary to validate if player wants to insert in row 10.
 				row = 9;
@@ -126,17 +165,74 @@ void Executive::chooseShipLoc(Board* board, int numShips) {//chooseShipLoc funct
 			if (i == 0) {
 				direction = 'H'; //If i=0, the first ship is being entered and a direction is not necessary.
 			} else { //Else have user input if they want the ship oriented horizontally or vertically.
-				cout << "Input a direction ('H' for horizontal or 'V' for vertical): ";
+				std::cout << "Input a direction ('H' for horizontal or 'V' for vertical): ";
 				direction = validateDirection(direction); //Make sure ship location is still valid with desired orientation.
 			}
 			if (!board->insertShip(i+1, row, col, direction)) { //If you cannot insert at desired location/orientation, user has to try again.
-				cout << "Error - Invalid Location : Ship already exists here or extends outside board. Try again\n"; //Error message.
+				std::cout << "Error - Invalid Location : Ship already exists here or extends outside board. Try again\n"; //Error message.
 			} else {
 				inserted = true; //Else, ship was inserted at desired location/orientation successfully!
 				board->printBoard("Place"); //Mark the change on the place board.
 			}
 		} //Closes out while loop.
         inserted = false;
+	} //Closes out for loop.
+	playerSwitch(); // switch player
+}
+
+/*
+choose random ship location for AI
+
+new code added
+*/
+void Executive::chooseRandomShipLoc(Board* board, int numShips) {
+
+	std::string shipLoc = ""; //Initializes shipLoc to empty string.
+	int row = 0; //Initializes row integer to 0.
+	int col = 0; //Initializes column integer to 0.
+	char temp; //Temp for converting to lowercase
+	char direction; //Char variable representing ship direction (orientation).
+	bool inserted = false; //Boolean variable keeps track of whether the ship was inserted, initialized to false.
+	for (int i = 0; i < numShips; i++) { //For loop traverses desired number of ships.
+		while (!inserted) { //While loop continues while the ship has not been inserted successfully.
+			//std::cout << "Player " << PTurn + 1 << ", Input a location for ship " << i + 1 << ": "; //Message directs current player to insert their ship.
+			//shipLoc = validateLoc(shipLoc); //Validate ship location.
+
+			shipLoc = std::to_string(rand() % 10 + 1); //1 to 10
+			shipLoc += (char)('A' + rand() % 7); //'A' to 'J'
+
+			if (shipLoc.length() == 3) { //This code is necessary to validate if player wants to insert in row 10.
+				row = 9;
+				temp = tolower(shipLoc[2]);
+				col = charToInt(temp);
+			}
+			else { //Valdiating ship location if in rows 1 to 9.
+				row = charToInt(shipLoc[0]);
+				temp = tolower(shipLoc[1]);
+				col = charToInt(temp);
+			}
+			if (i == 0) {
+				direction = 'H'; //If i=0, the first ship is being entered and a direction is not necessary.
+			}
+			else { //Else have user input if they want the ship oriented horizontally or vertically.
+				//std::cout << "Input a direction ('H' for horizontal or 'V' for vertical): ";
+				//direction = validateDirection(direction); //Make sure ship location is still valid with desired orientation.
+				if (rand() % 2 == 0) {
+					direction = 'H';
+				}
+				else {
+					direction = 'V';
+				}
+			}
+			if (!board->insertShip(i + 1, row, col, direction)) { //If you cannot insert at desired location/orientation, user has to try again.
+				//std::cout << "Error - Invalid Location : Ship already exists here or extends outside board. Try again\n"; //Error message.
+			}
+			else {
+				inserted = true; //Else, ship was inserted at desired location/orientation successfully!
+				board->printBoard("Place"); //Mark the change on the place board.
+			}
+		} //Closes out while loop.
+		inserted = false;
 	} //Closes out for loop.
 	playerSwitch(); // switch player
 }
@@ -152,7 +248,7 @@ int Executive::charToInt(char c) { //charToInt takes in a character and converts
 	return num; //Return num integer value.
 }
 
-bool Executive::checkInput(string input)
+bool Executive::checkInput(std::string input)
 {
 	bool invalidLength = false; //Boolean value restrictLength initialized to zero (false).
 	bool invalidChar = false; //Boolean value validChar initialized to zero (false).
@@ -179,36 +275,139 @@ bool Executive::checkInput(string input)
 	else return false;
 }
 
-string Executive::validateLoc(string input) { //Collects user input for string and ensures it is a valid entry, i.e. follow row-column format.
-	cin >> input; //Collect user input.
+std::string Executive::validateLoc(std::string input) { //Collects user input for string and ensures it is a valid entry, i.e. follow row-column format.
+	std::cin >> input; //Collect user input.
 	bool invalid = checkInput(input);
-	while (cin.fail() || invalid) { //While innapropriate input occurs...
-		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n'); //Utilize cin.fail and output error message, need correct input to continue.
+	while (std::cin.fail() || invalid) { //While innapropriate input occurs...
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //Utilize cin.fail and output error message, need correct input to continue.
 		if (invalid)
 		{
-			cout << "Your input should specify the row and then column, i.e. 1a. Try again: ";
+			std::cout << "Your input should specify the row and then column, i.e. 1a. Try again: ";
 		}
-		cin >> input; //input = validateLoc(input);
+		std::cin >> input; //input = validateLoc(input);
 		invalid = checkInput(input);
 	}
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	return input; //Return string input that has been validated.
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	return input; //Return std::string input that has been validated.
+}
+
+/*
+AI play based on the level
+
+new code is added
+*/
+std::string Executive::validateAILoc(std::string input, Board* board, Board* opBoard) {
+
+	if (level == "1") //easy
+	{
+		input += std::to_string(rand() % 10 + 1); //1 to 10
+		input += (char)('A' + rand() % 7); //'A' to 'J'
+	}
+	else if (level == "2") //medium
+	{
+		if (!previousHit)
+		{
+			//random
+			input += std::to_string(rand() % 10 + 1); //1 to 10
+			input += (char)('A' + rand() % 7); //'A' to 'J'
+		}
+		else {
+			//shot based on the direction and previous location
+			
+			bool done = false;
+			while (!done)
+			{
+				int direction = rand() % 4;
+				switch (direction)
+				{
+				case 0: //north
+					if (previousRow > 0)
+					{
+						input += std::to_string(previousRow - 1 + 1);
+						input += (char)('A' + previousCol);
+						done = true;
+					}
+					break;
+				case 1://east
+					if (previousCol < 6)
+					{
+						input += std::to_string(previousRow + 1);
+						input += (char)('A' + (previousCol + 1));
+						done = true;
+					}
+					break;
+				case 2://west
+					if (previousCol > 0)
+					{
+						input += std::to_string(previousRow + 1);
+						input += (char)('A' + (previousCol - 1));
+						done = true;
+					}
+					break;
+				case 3://south
+					if (previousRow < 9)
+					{
+						input += std::to_string(previousRow + 1 + 1);
+						input += (char)('A' + previousCol);
+						done = true;
+					}
+					break;
+				}
+			}
+		}
+	}
+	else { //hard
+
+		int row = rand() % 10;
+		int col = rand() % 7;
+
+		while (!opBoard->hasShip(row, col) && opBoard->validShot(row, col)) { 
+			
+			row = rand() % 10;
+			col = rand() % 7;
+		}
+
+		input += std::to_string(row + 1);
+		input += (char)('A' + (col));
+
+	}
+
+	return input; //Return std::string input that has been validated.
 }
 
 char Executive::validateDirection(char input) { //validateDirection function interprets user input for orientation, returns 'v'(vertical)  or 'h' (horizontal).
-    cin >> input; //Takes in user input to determine ship orientation.
+    std::cin >> input; //Takes in user input to determine ship orientation.
     input = tolower(input); //Convets input to lowercase equivalent if not already lowercase (H==h and V==v).
-	while (cin.fail() || (input != 'h' && input != 'v')) { //If user input is not h for horizontal or v for vertical...
-		cin.clear(); //Using cin.fail functionality...
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		cout << "Sorry, your input was invalid. Try again: "; //Display error message and give user opportunity to input until acceptable input.
-		cin >> input;
+	while (std::cin.fail() || (input != 'h' && input != 'v')) { //If user input is not h for horizontal or v for vertical...
+		std::cin.clear(); //Using cin.fail functionality...
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		std::cout << "Sorry, your input was invalid. Try again: "; //Display error message and give user opportunity to input until acceptable input.
+		std::cin >> input;
 		input = tolower(input);
 	}
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	return input; //Return input value as 'v' or 'h' to reprsent desired orientation.
 }
 
-//prompt menu for user to choose
+/*
+checks to see whether the level of AI location is valid
+*/
+std::string Executive::validateLevel(std::string input) {
 
+	std::cin >> input; //Collect user input.
+
+	while (std::cin.fail() || (input != "1" && input != "2" && input != "3")) { //While innapropriate input occurs...
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //Utilize cin.fail and output error message, need correct input to continue.
+		if (input != "1" && input != "2" && input != "3")
+		{
+			std::cout << "Your input should specify the level of AI (1, 2 or 3). Try again: ";
+		}
+		std::cin >> input; 
+
+	}
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	return input; //Return std::string input that has been validated.
+
+}

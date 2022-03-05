@@ -1,18 +1,11 @@
 /*-------------------------------------------------------
- *      File Name: Board.h
- *      Authors: Alice Kuang, Thresa Kelly, Minwoo Lee, Justin Sizoo, Maggie Swartz (Group #14)
- *      Assignment: EECS_448 Project #1
- *      Description: This is the header file for the Board class
- *      Date Last Modified: 02/13/2022
+
  *-----------------------------------------------------*/
 
 #ifndef BOARD_H
 #define BOARD_H
 
 #include <iostream>
-#include <string>
-
-using namespace std;
 
 class Board {
 private:
@@ -20,7 +13,7 @@ private:
     int m_size; //member variable m_size, representing size of board
     char** initialGrid; //2D array of characters, representing initialGrid (the resulting grid after player places their own battleships)
     char** placeGrid; //2D array of characters, representing placeGrid (where a player places their own battleships)
-    string** shotGrid; //2D array of characters, representing shotGrid (where a player tries to hit opponent's battleships and records results)
+    char** shotGrid; //2D array of characters, representing shotGrid (where a player tries to hit opponent's battleships and records results)
     int printCol[10] = { 1,2,3,4,5,6,7,8,9,10 }; //Array of integers, of size 10, filled w/ headers for column positions.
     char printRow[10] = { 'A','B','C','D','E','F','G','H','I','J' }; //Array of characters, of size 10, filled w/ headers for row positions.
 
@@ -31,7 +24,7 @@ public:
         * @param integer size - size of ship, and std::string playerNum - representing name of player
         * @return an instance of the Board class
         * -------*/
-    Board(int size, string playerNum);
+    Board(int size, std::string playerNum);
 
     /*----------
         * @pre an instance of Board class must exist to be deleted
@@ -95,7 +88,7 @@ public:
         * @param string specifying the boardType (initialGrid, placeGrid, or shotGrid)
         * @return none - void function
         * -------*/
-    void printBoard(string boardType);
+    void printBoard(std::string boardType);
 
     /*----------
         * @pre gameplay must have already begun
@@ -104,6 +97,12 @@ public:
         * @return boolean value T or F
         * -------*/
     bool validShot(int row, int col);
+    
+    /*
+    check if has ship at row, col
+    new code is added
+    */
+    bool hasShip(int row, int col);
 };
 
 #endif

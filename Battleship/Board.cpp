@@ -1,31 +1,24 @@
 /*-------------------------------------------------------
- *      File Name: Board.cpp
- *      Authors: Alice Kuang, Thresa Kelly, Minwoo Lee, Justin Sizoo, Maggie Swartz (Group #14)
- *      Assignment: EECS_448 Project #1
- *      Description: This is the executable file for the Board class
- *      Date Last Modified: 02/13/2022
  *-----------------------------------------------------*/
 
 #include "Board.h"
 
-using namespace std;
-
-Board::Board(int size, string playerNum) { //Constructor for Board class, passes in parameters: size of board (always 10x10) and string representing player name/#.
+Board::Board(int size, std::string playerNum) { //Constructor for Board class, passes in parameters: size of board (always 10x10) and string representing player name/#.
 	player = playerNum; //Sets member variable player = to playerNum argument (so either Player 1 or Player 2).
 	m_size = size; //Sets member variable m_size = to size argument passed in.
 	initialGrid = new char* [m_size]; //Creates array of characters to store the players initial placement of ship
 	placeGrid = new char* [m_size]; //Creates array of characters to represent player's own ships and how they have decided to place them.
-	shotGrid = new string* [m_size]; //Creates array of characters to represent player's shots at opponent's grid and their locations.
+	shotGrid = new char* [m_size]; //Creates array of characters to represent player's shots at opponent's grid and their locations.
 	for (int i = 0; i < m_size; i++)
 	{ //Nested for loop traverses size of battleship board 2D array.
 		initialGrid[i] = new char[m_size];
 		placeGrid[i] = new char[m_size]; //First pass creates new array for both boards, finishing creation of a 2D array.
-		shotGrid[i] = new string[m_size]; //2D array for both placeGrid and shotGrid.
+		shotGrid[i] = new char[m_size]; //2D array for both placeGrid and shotGrid.
 		for (int j = 0; j < m_size; j++)
 		{ //For loop traverse both placeGrid and shotGrid arrays and initialized all entries to character '0'.
 			initialGrid[i][j] = '0';
 			placeGrid[i][j] = '0';
-			shotGrid[i][j] = "0";
+			shotGrid[i][j] = '0';
 		}
 	}
 }
@@ -93,17 +86,17 @@ bool Board::noCollisions(int size, int row, int col, char dir) {
 }
 
 bool Board::validShot(int row, int col) { //validShot takes in row/col/pointer to oppenent's board, returns boolean indicating if this area has already been shot at
-	if (shotGrid[row][col] != "0") return 0;
+	if (shotGrid[row][col] != '0') return 0;
 	else return 1;
 }
 
 bool Board::shootShot(int row, int col, Board* opBoard) { //shootShot takes in row/col/pointer to opponent's board, returns boolean indicating hit or miss.
 	if (opBoard->isHit(row, col)) { //If there was a hit on the opponent's board at the designed row and col location...
-		shotGrid[row][col] = "\033[1;31mH\033[0m"; //Then insert an H in the own player's corresponding shot grid to represent a hit...
+		shotGrid[row][col] = 'H'; //Then insert an H in the own player's corresponding shot grid to represent a hit...
 		return true; //And return true because the player successfully hit an opponent's battleship.
 	}
 	else {
-		shotGrid[row][col] = "\033[1;34mM\033[0m"; //Else, insert a M in own player's corresponding shot grid to represent a miss...
+		shotGrid[row][col] = 'M'; //Else, insert a M in own player's corresponding shot grid to represent a miss...
 		return false; //And return false because no ship was hit.
 	}
 }
@@ -146,33 +139,39 @@ bool Board::checkWin() { //checkWin takes in no parameters and returns boolean v
 	return true; //Else, return true as no ships remain to be hit, player has won battleship.
 }
 
-void Board::printBoard(string boardType) { //Prints board based on given boardtype, just for UI interface.
-	cout << "\n" << this->player << "'s " << boardType << " Grid\n\n"; //Heading designating which player's shot grid is in view.
+void Board::printBoard(std::string boardType) { //Prints board based on given boardtype, just for UI interface.
+	std::cout << "\n" << this->player << "'s " << boardType << " Grid\n\n"; //Heading designating which player's shot grid is in view.
 	for (int i = 0; i <= m_size; i++) { //Nested for loop traverse entirety of board.
 		if (i == 1) {
-			cout << "\n"; //Formatting for top row to display column letters.
+			std::cout << "\n"; //Formatting for top row to display column letters.
 		} if (i != 0) {
-			cout << printCol[i - 1] << " ";
+			std::cout << printCol[i - 1] << " ";
 		}
 		for (int j = 0; j <= m_size; j++) { //Formatting for displaying row numbers.
 			if (i == 0 && j == 0 && i != m_size) {
-				cout << "  ";
+				std::cout << "  ";
 			} if (j == 0 && i != m_size) {
-				cout << " ";
+				std::cout << " ";
 			} if (i == 0 && j != 0) {
-				cout << printRow[j - 1] << " ";
+				std::cout << printRow[j - 1] << " ";
 			} if (i != 0 && j != m_size) { //Display grid.
 				if (boardType == "Shot") {
-					cout << shotGrid[i - 1][j] << " ";
+					std::cout << shotGrid[i - 1][j] << " ";
 				}
 				else {
-					cout << placeGrid[i - 1][j] << " ";
+					std::cout << placeGrid[i - 1][j] << " ";
 				}
 			}
 		}
-		cout << "\n";
+		std::cout << "\n";
 	}
-	cout << "\n";
+	std::cout << "\n";
 }
 
-
+/*
+check if has ship at row, col
+new code is added
+*/
+bool Board::hasShip(int row, int col) {
+	return initialGrid[row][col] != '0';
+}
