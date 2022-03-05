@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+using namespace std;
+
 class Board {
 private:
     std::string player; //std::string representing player name
@@ -28,7 +30,7 @@ public:
         * @param integer size - size of ship, and std::string playerNum - representing name of player
         * @return an instance of the Board class
         * -------*/
-    Board(int size, std::string playerNum);
+    Board(int size, string playerNum);
 
     /*----------
         * @pre an instance of Board class must exist to be deleted
@@ -92,7 +94,7 @@ public:
         * @param string specifying the boardType (initialGrid, placeGrid, or shotGrid)
         * @return none - void function
         * -------*/
-    void printBoard(std::string boardType);
+    void printBoard(string boardType);
 
     /*----------
         * @pre gameplay must have already begun

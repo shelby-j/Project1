@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include "Board.h"
+using namespace std;
 
 class Executive {
 	private:
@@ -70,20 +71,20 @@ class Executive {
     		int charToInt(char c);
 
 		/*----------
-     		* @pre must input an std::string
+     		* @pre must input an #iistring
      		* @post checks to see whether the given location is valid in reference to board size and description
-     		* @param std::string input, the string representing the desired location on board
-     		* @return std::string, representation as to whether or not a valid location was chosen
+     		* @param #iistring input, the string representing the desired location on board
+     		* @return #iistring, representation as to whether or not a valid location was chosen
      		* -------*/
-    		std::string validateLoc(std::string input);
+    		string validateLoc(string input);
 
 		/*----------
-	  		* @pre must input an std::string
+	  		* @pre must input an #iistring
      		* @post checks to see if a given string input is valid
-		   	* @param std::string input, the string to check validity
+		   	* @param #iistring input, the string to check validity
 		    * @return bool, to determine if the string is valid or not
 			* -------*/
-			bool checkInput(std::string input);
+			bool checkInput(string input);
      		
 		/*----------
      		* @pre char input must be V (for vertical) or H (for horizontal) for meaningful orientation
