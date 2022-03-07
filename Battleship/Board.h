@@ -126,7 +126,7 @@ public:
         * @param row and col
         * @return boolean value T or F
         * -------*/
-    bool validShot(int row, int col,bool isSpecialShot);
+    bool validShot(int row, int col, bool isSpecialShot);
     
     /*
     check if has ship at row, col

@@ -97,7 +97,7 @@ bool Board::noCollisions(int size, int row, int col, char dir) {
 	return true; // there were no collisions
 }
 
-bool Board::validShot(int row, int col,bool isSpecialShot) { //validShot takes in row/col/pointer to oppenent's board, returns boolean indicating if this area has already been shot at
+bool Board::validShot(int row, int col, bool isSpecialShot) { //validShot takes in row/col/pointer to oppenent's board, returns boolean indicating if this area has already been shot at
 	if(!(specialShotAvailable>0 && isSpecialShot) )
 	{
 	if (shotGrid[row][col] != '0') return 0;
@@ -109,7 +109,7 @@ bool Board::validShot(int row, int col,bool isSpecialShot) { //validShot takes i
 	}
 }
 
-bool Board::shootShot(int row, int col, Board* opBoard,bool isSpecialShot) { //shootShot takes in row/col/pointer to opponent's board, returns boolean indicating hit or miss.
+bool Board::shootShot(int row, int col, Board* opBoard, bool isSpecialShot) { //shootShot takes in row/col/pointer to opponent's board, returns boolean indicating hit or miss.
 	if(!isSpecialShot)
 	{
 		if (opBoard->isHit(row, col)) { //If there was a hit on the opponent's board at the designed row and col location...

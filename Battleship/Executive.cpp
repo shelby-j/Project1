@@ -14,11 +14,11 @@
 #include <cctype>
 
 
-Executive::Executive(int numShips) { //Constructor for Executive class, takes in selected number of ships as a parameter.
+Executive::Executive(int numShips, int NoOfspecialShots) { //Constructor for Executive class, takes in selected number of ships as a parameter.
 	m_size = 10; //Sets member variable m_size equal to 10 (creation of 10x10 playing board.
 	PTurn = false; //Variable PTurn keeps track of which player's turn it is, starts at false so Player 1 will go first when gameplay begins.
-	p1Board = new Board(m_size, "Player 1"); //Creates instance of Board class for Player 1, takes in m_size and name "Player 1" as parameters.
-	p2Board = new Board(m_size, "Player 2"); //Creates instance of Board class for Player 2, take in m_size and name "Player 2" as parameters.
+	p1Board = new Board(m_size, "Player 1", NoOfspecialShots); //Creates instance of Board class for Player 1, takes in m_size and name "Player 1" as parameters.
+	p2Board = new Board(m_size, "Player 2", NoOfspecialShots); //Creates instance of Board class for Player 2, take in m_size and name "Player 2" as parameters.
 	p1Board->printBoard("Initial"); //Prints out initial board prior to ship location selection.
 	chooseShipLoc(p1Board, numShips); //Player 1 places their ships on their board w/ selected number of ships.
 
@@ -96,7 +96,7 @@ void Executive::run() { //Void run function enables all gameplay functionality.
 			col = charToInt(tmp);
 		}
 
-		while (!board->validShot(row, col)) { //Ensure that shot isn't in same position
+		while (!board->validShot(row, col, useSpecialShot)) { //Ensure that shot isn't in same position
 			std::cout << "Error - you have already shot at this location, take your shot again: ";
 			
 			if (PTurn == 0) //player
@@ -118,7 +118,7 @@ void Executive::run() { //Void run function enables all gameplay functionality.
 			}
 		}
 
-        if (board->shootShot(row, col, opBoard)) { //Check to see if there was a hit or miss at shot location.
+        if (board->shootShot(row, col, opBoard, useSpecialShot)) { //Check to see if there was a hit or miss at shot location.
 			if (opBoard->sinkStatus(row, col)) { //See if this shot resulted in the sinking of a ship...
 				std::cout << "SUNK!\n\n"; //If it did, output message indicating sunk status.
 
@@ -396,7 +396,7 @@ std::string Executive::validateAILoc(std::string input, Board* board, Board* opB
 		int row = rand() % 10;
 		int col = rand() % 7;
 
-		while (!opBoard->hasShip(row, col) && opBoard->validShot(row, col)) { 
+		while (!opBoard->hasShip(row, col) && opBoard->validShot(row, col, false)) { 
 			
 			row = rand() % 10;
 			col = rand() % 7;
