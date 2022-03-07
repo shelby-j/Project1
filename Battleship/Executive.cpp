@@ -56,7 +56,7 @@ void Executive::run() { //Void run function enables all gameplay functionality.
 		board->printBoard("Shot"); //Print the updated shotGrid.
     
 
-		if(board->isSpecialShotAvailable())
+		if(board->isSpecialShotAvailable() && PTurn == 0)
 		{
 			char confirm;
 			std::cout << "Player " << PTurn+1 << ", do you want to use your special shot, available "<< board->SpecialShotLeft()<< " shot "; 
@@ -77,7 +77,7 @@ void Executive::run() { //Void run function enables all gameplay functionality.
 			std::cout << "Player " << PTurn+1 << ", take your Special shot: "; 
 		else
         std::cout << "Player " << PTurn+1 << ", take your shot: "; //Message indicating Player 1 goes first, but alternates to next player in future by + on PTurn.
-				if (PTurn == 0) //player
+		if (PTurn == 0) //player
 		  {
 		  	shot = validateLoc(shot); //Validate shot location.
 	  	}
