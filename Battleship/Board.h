@@ -127,6 +127,14 @@ public:
         * @return boolean value T or F
         * -------*/
     bool validShot(int row, int col,bool isSpecialShot);
+    
+    /*
+    check if has ship at row, col
+    new code is added
+    */
+    bool hasShip(int row, int col);
+  
+
 };
 
 #endif

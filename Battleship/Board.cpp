@@ -228,3 +228,11 @@ void Board::printBoard(std::string boardType) { //Prints board based on given bo
 	}
 	std::cout << "\n";
 }
+
+/*
+check if has ship at row, col
+new code is added
+*/
+bool Board::hasShip(int row, int col) {
+	return initialGrid[row][col] != '0';
+}

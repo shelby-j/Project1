@@ -1,10 +1,8 @@
 /*-------------------------------------------------------
- *      File Name: main.cpp
- *      Authors: Alice Kuang, Thresa Kelly, Minwoo Lee, Justin Sizoo, Maggie Swartz (Group #14)
- *      Assignment: EECS_448 Project #1
- *      Description: This is the main.cpp file that triggers all program functionality/begins battleship
- *      Date Last Modified: 02/12/2022
+ *
  *-----------------------------------------------------*/
+#include <ctime>
+#include <cstdlib>
 #include <iostream>
 #include "Executive.h"
 //void welcomeMsg() {
@@ -14,6 +12,9 @@
 //}
 
 int main(int argc, char* argv[]) { //To run the program, user must enter ./Battleship and the number of ships they'd like to play with.
+	
+	srand(time(0)); //random seed
+
 	//welcomeMsg();
 	if (argc != 3)
 	{ //If the user does not enter 2 arguments into the command line, the below error message will display.

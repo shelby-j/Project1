@@ -21,6 +21,12 @@ class Executive {
 		Board* p2Board; //Pointer to instance of Board class that represents Player 2's board
 		bool PTurn; //Boolean variable keeps track of which player's turn it is at any given time.
 
+        std::string level; //AI level - 1. Easy, 2: Medium, 3: Hard
+        
+        bool previousHit;   //the previous is hit -> the next shot will be adjacency
+        int previousRow;    //previous row
+        int previousCol;    //previous col
+
 	public:
     		/*----------
      		* @pre numShips >=1 && <= 5
@@ -96,6 +102,30 @@ class Executive {
      		* @return char representing chosen orientation
      		* -------*/
     		char validateDirection(char input);
+
+            /*----------
+                * @pre
+                * @post
+                * @param Board* board (pointer to player's board) and int numShips (# of ships chosen for play)
+                * @return none - void function
+                * -------*/
+            void chooseRandomShipLoc(Board* board, int numShips);  //new code added
+
+            /*----------
+            * @pre must input an std::string
+            * @post checks to see whether the level of AI location is valid
+            * @param std::string input, the string representing the level
+            * @return std::string, representation as to whether or not a valid level was chosen
+            * -------*/
+            std::string validateLevel(std::string input);  //new code added
+
+            /*----------
+            * @pre must input an std::string
+            * @post checks to see whether the given location is valid in reference to board size and description
+            * @param std::string input, the string representing the desired location on board
+            * @return std::string, representation as to whether or not a valid location was chosen
+            * -------*/
+            std::string validateAILoc(std::string input, Board* board, Board* opBoard);  //new code added
 };
 
 #endif
